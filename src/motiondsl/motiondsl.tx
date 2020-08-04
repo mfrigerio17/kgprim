@@ -1,0 +1,76 @@
+
+/* A simple language to specify rigid body motions, as a sequence of
+ * basic translations and rotations of an arbitrary amount.
+ *
+ * Given a specification of a rigid body motion, the sequence of the coordinate
+ * transforms that corresponds to such motion depends on a few conventions, and
+ * therefore it is very easy to do mistakes when developing it by hand.
+ *
+ * This language aims to be part of a toolchain which can robustly and automatically
+ * generate code for coordinate transformation matrices, given a high level
+ * description of the relative position of pairs of reference frames.
+ */
+
+
+Model:
+    "Model" name=ID
+    paramGroups += ParametersDeclaration*
+    "Convention" "=" convention=Conv
+    motions += Motion*
+;
+
+Conv:  "currentFrame"|"fixedFrame" ;
+
+
+ParameterLiteral : name=ID;
+ParametersDeclaration:
+    "Params" name=ID "{"
+        params += ParameterLiteral?
+        (','params += ParameterLiteral)*
+    "}"
+;
+
+Frame: name=ID;
+
+
+Motion:
+    start=Frame '->' end=Frame
+    ':' primitiveMotions += PrimitiveMotion*
+    ('['userName=ID']')?
+;
+
+PrimitiveMotion:
+    Rotation | Translation
+;
+Rotation:    Rotx | Roty | Rotz ;
+Translation: Trx | Try | Trz ;
+
+Trx:  "trx""("expr=Expr")";
+Try:  "try""("expr=Expr")";
+Trz:  "trz""("expr=Expr")";
+
+Rotx:  "rotx""("expr=Expr")";
+Roty:  "roty""("expr=Expr")";
+Rotz:  "rotz""("expr=Expr")";
+
+
+// Keep this order of the expressions, to avoid wrong matches.
+// For example, if we put 'PlainExpr' before 'DivExpr', it will match any
+// 'Value', but it will fail if it then encounters the "/" symbol.
+Expr : MultExpr | DivExpr | PlainExpr ;
+
+PlainExpr : minus?="-"? arg= Value;                 // e.g. "-PI"
+MultExpr  : mult=NUMBER "*" arg= Value;             // e.g. "5.0 * x"
+DivExpr   : minus?="-"? arg= Value "/" div=NUMBER ; // e.g. "PI/2.0"
+
+Value : Constant | Parameter | Variable;
+
+Constant : FLOAT | PILiteral | UserConstant | RefToConstant;
+
+PILiteral : /[P|p][I|i]/ ;
+UserConstant : "c:" name=ID ":" value=FLOAT;
+RefToConstant: "c:" actual=[UserConstant];
+Parameter : !PILiteral "p:"name=ID;
+Variable  : !PILiteral !Parameter name=ID;
+
+Comment: /\/\/.*$/;

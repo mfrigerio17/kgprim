@@ -1,0 +1,28 @@
+Model MotionDSLSample
+
+// All the motion-steps referenced by this model are to be interpreted in the
+// current, moving frame
+Convention = currentFrame
+
+// A rotation about X followed by a translation along Y.
+// Use float literals for constant amounts
+fA -> fB : rotx(0.2) try(3.1)
+
+// Demonstrate the use of
+// - an explicitly named constant with syntax: 'c:<name>:<value>'
+// - a PI expression (also constant)
+fB -> fC : rotz( c:rz:0.6 ) roty( pi /2 )
+
+// Demonstrate the use of parameters, and parameter expressions.
+// Note that a parameter (like 'my_tr') does not need to be the complete
+// argument of a motion step, it may appear only as a part of an expression.
+fC -> fD : trz(p:my_tr/2)  trx(p:my_tr/2) roty( p:my_rot )
+fD -> fE : rotz(p:my_rot) rotx(2*p:my_rot)
+
+// Demonstrate the use of variables, and a reference to a previously defined
+// constant
+fE -> fF : rotx(q0) rotz( c:rz )
+fF -> fG : roty(q1)
+
+// Variables and parameter
+fG -> fH : rotx(q0) trz( p:my_tr ) roty(q1)

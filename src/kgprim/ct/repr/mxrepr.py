@@ -1,7 +1,7 @@
 '''
 Matrix representations for coordinate transforms.
 
-This module contains a few functors that return a matrix representation of the
+This module contains a few functors that create a matrix representation of the
 given `kgprim.ct.models.CoordinateTransform` model. The available
 representations are:
   - pure rotation matrix (possible translation components in the transform are
@@ -10,11 +10,10 @@ representations are:
   - 6x6 matrix for spatial motion vectors
   - 6x6 matrix for spatial force vectors
 
-For every representation, two concrete backends are available: a
-`kgprim.ct.backend.numeric` backend that uses Numpy, and a
-`kgprim.ct.backend.symbolic` backend that uses Sympy. The symbolic
-backend is required whenever the coordinate transform depends on at least one
-non-constant argument, like a `kgprim.values.Variable` or a
+For any matrix, one can choose between two concrete backends for the matrix
+data: numeric and symbolic (using respectively Numpy and Sympy).
+The symbolic option is required whenever the coordinate transform depends on at
+least one non-constant argument, like a `kgprim.values.Variable` or a
 `kgprim.values.Parameter`.
 
 For example:

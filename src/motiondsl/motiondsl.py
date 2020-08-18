@@ -1,5 +1,6 @@
 '''
-The actual implementation of the MotionDSL, using textX.
+The actual implementation of the MotionDSL (`motiondsl`), using
+[textX](https://github.com/textX/textX).
 
 The module-level member `dsl` is the default instance of the `MotionDSL` class.
 Normally, you will only need this preallocated instance to load a document in
@@ -16,12 +17,12 @@ For example:
         else :
             ifile = os.path.join( os.path.dirname(__file__), 'sample.motdsl')
 
-        # Load the DSL model from the input file
+        # Load the motions-model from the input file
         motionsModel = motdsl.dsl.modelFromFile(ifile)
 
         print("Motions (poses) model name: ", motionsModel.name)
 
-        # Convert the DSL model to a pose-specification model
+        # Convert the motions-model to a pose-specification model
         posesModel = motdsl.toPosesSpecification(motionsModel)
 '''
 
@@ -75,7 +76,10 @@ class MotionDSL:
 
     def modelFromFile(self, file):
         '''
-        The runtime, Python representation of a conforming MotionDSL document
+        The MotionDSL model represented by the given conforming document.
+
+        Arguments:
+          - `file`: path of a MotionDSL document (i.e. a text file)
         '''
         return self.mm.model_from_file(file)
 

@@ -1,5 +1,6 @@
 '''
-Functions to convert rigid-motion models into coordinate-transform models.
+Functions to convert rigid-motion models (`kgprim.motions`) into
+coordinate-transform models.
 
 A sequence of rigid motions specifies the relative pose between two
 Cartesian frames A and B. A corresponding coordinate-transform is an object that
@@ -137,7 +138,9 @@ def motionsToCoordinateTransforms(
         ignore if in doubt
 
     Return a `CTransformsModel` object, whose field `transforms` is a list
-    ordered like the input list `whichTransforms`.
+    ordered like the input list `whichTransforms`. If `whichTransforms` is
+    None, the default transforms will be returned: these are the A_X_B
+    transforms for each input motion A-->B.
 
     '''
     retModelName = retModelName or posesModel.name

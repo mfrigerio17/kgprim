@@ -6,7 +6,11 @@ import kgprim.values as numeric_argument
 
 class TransformMetadata:
     '''
-    Metadata of a single coordinate transform
+    Metadata of a single coordinate transform model.
+
+    A metadata object contains the set of variables, parameters and constants
+    which are part of the transform, and also two flags to tell whether the
+    transform is parametric or constant.
     '''
 
     def __init__(self, coordinateTransform):
@@ -21,6 +25,10 @@ class TransformMetadata:
 
 
 class TransformsModelMetadata:
+    '''
+    Metadata for a whole transforms-model (that is, a set of transforms)
+    '''
+
     def __init__(self, ctmodel):
         variables    = OrderedDict()
         parameters   = OrderedDict()

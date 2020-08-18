@@ -27,7 +27,7 @@ class CoordinateTransform:
     def rightFrame(self): return self.rightF
     @property
     def primitives(self):
-        '''The primitive transforms this instance is comprised of.'''
+        '''The list of `PrimitiveCTransform` this instance is comprised of.'''
         return self._primitives
 
     def __str__(self): return self.leftFrame.name + "_X_" + self.rightFrame.name
@@ -70,7 +70,7 @@ class PrimitiveCTransform:
     of the Cartesian axis.
 
     Instances of this class model the coordinate transforms associated with
-    "primitive" motion steps, see `gr.motions.MotionStep`.
+    "primitive" motion steps, see `kgprim.motions.MotionStep`.
     '''
 
     strbits = {

@@ -8,10 +8,16 @@ of `Frame`, with two different names.
 
 class RigidBody():
     def __init__(self, n):
+        '''
+        Constructor arguments:
+          - `n`: the desired name for this instance
+        '''
         self._name = n
 
     @property
-    def name(self): return self._name
+    def name(self):
+        '''The name of this rigid body'''
+        return self._name
 
     def __eq__(self, rhs): return isinstance(rhs, RigidBody) and self.name==rhs.name
     def __hash__(self)   : return 47 * hash(self._name)
@@ -43,6 +49,10 @@ class Frame(Attachable):
     '''
 
     def __init__(self, n):
+        '''
+        Constructor arguments:
+          - `n`: the desired name for this instance
+        '''
         self._name = n
 
     @property
@@ -109,6 +119,10 @@ def velCompose(v1, v2):
 
 
 class Attachment():
+    '''
+    Models the attachment relation between an attachable entity (like a
+    Frame) and a RigidBody
+    '''
     def __init__(self, entity, body):
         if not isinstance(body, RigidBody) :
             raise ValueError("Things can only be attached to rigid bodies")

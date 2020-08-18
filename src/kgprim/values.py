@@ -1,13 +1,14 @@
 '''
 A set of types to represent explicitly variables, parameters and constants.
 
-These three classes of numerical attributes conceptually differ with respect to
-the average rate of change, in a given context. However, the types of this
-module do not really implement any particular behaviour exposing such
-difference; they are mere placeholders provided for modeling purposes.
+The types do not really implement any particular behaviour, but
+are mere placeholders provided for modeling purposes. Instances can be used in
+alternative to floats, for numerical attributes (such as the `amount` of a
+`kgprim.motions.MotionStep` object).
 
-Instances can be used in alternative to floats, for numerical attributes such
-as the `amount` of a `kgprim.motions.MotionStep` object.
+Conceptually, the relative rate of change of a numerical attribute determines
+whether it is a variable, a parameter, or a constant. It is a modelling choice
+to use a class or another.
 
 Internally, a Sympy symbol is used, which is accessible via the `symbol`
 property. The `expr` property also returns the Sympy symbol; it is provided
@@ -210,6 +211,8 @@ class Expression:
             `Constant`, which is the argument of the expression.
           - `sympyExpr` : the actual, full, Sympy expression; if None, this
              instance will represent the identity expression.
+        The only free symbol in the given `sympyExpr` must be the same as
+        `argument.symbol`, otherwise a `RuntimeError` is raised.
         '''
         if sympyExpr is not None :
             if len(sympyExpr.free_symbols) > 0: # ==0 only for pi or other constants
@@ -230,11 +233,13 @@ class Expression:
         return self.argument
 
     def evalf(self):
+        '''The floating point value of this expression, if it is constant'''
         if not self.constant() :
             raise RuntimeError('Cannot evaluate to float a non constant expression')
         return self.expression.evalf( subs={self.argument.symbol : self.argument.value})
 
     def constant(self):
+        '''Whether this expression has a constant value or not'''
         return self.argument.constant
 
     def __neg__(self):

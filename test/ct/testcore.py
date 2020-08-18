@@ -1,8 +1,7 @@
 '''
 These test cases really address the combined working of `kgprim.motions` and
 `kgprim.ct.frommotions`, because it is hard to test the motions models
-independently, without resorting to numerical representations (available instead
-in this package).
+independently, without resorting to numerical representations.
 '''
 
 import random, math, unittest, string, logging

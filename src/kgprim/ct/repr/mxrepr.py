@@ -135,11 +135,8 @@ class MatrixReprMetadata:
     Metadata of a matrix representation of a coordinate transform
     '''
 
-    def __init__(self, coordinateTransformMetadata, matrixRepresentation=None,
-                 reprKind=MatrixRepresentation.homogeneous):
-        # If not matrix is given, defaults to homogeneous coordinates, symbolic backend
-        if matrixRepresentation == None :
-            matrixRepresentation = hCoordinatesSymbolic(coordinateTransform)
+    def __init__(self, coordinateTransformMetadata, matrixRepresentation,
+                 reprKind):
 
         ccoeff, vcoeff = constantCoefficients(matrixRepresentation)
         self.variableCoefficients = vcoeff

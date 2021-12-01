@@ -63,7 +63,16 @@ class TransformsModelMetadata:
 
 
 class UniqueExpression:
-    def __init__(self, ctPrimitive, coordinateTransform ):
+    '''
+    Wraps a `kgprim.values.Expression` after stripping any leading minus.
+    Expressions like `2*x` and `-2*x` would lead to two instances
+    of this class that compare equal.
+
+    Arguments:
+    - `ctPrimitive` a primitive transform having an expression as argument
+    '''
+
+    def __init__(self, ctPrimitive ):
         if not isinstance(ctPrimitive.amount, numeric_argument.Expression) :
             raise RuntimeError('Need to pass a transform with an Expression as argument')
 
@@ -81,7 +90,9 @@ class UniqueExpression:
         self.rotation   = (ctPrimitive.kind == MotionStep.Kind.Rotation)
 
     @property
-    def symbolicExpr(self): return self.expression.expr
+    def symbolicExpr(self):
+        '''The underlying Sympy expression'''
+        return self.expression.expr
 
     def isRotation(self): return self.rotation
 
@@ -95,19 +106,26 @@ class UniqueExpression:
 
 
 def symbolicArgumentsOf(coordinateTransform):
-    '''The set of variables, parameters and constants the given
-    transform depends on.
+    '''
+    The variables, parameters and constants the given transform depends on.
 
-    The argument must be a ct.models.CoordinateTransform instance (or a
-    ct.models.PrimitiveCTransform).
+    The argument must be a `ct.models.CoordinateTransform` instance (or a
+    `ct.models.PrimitiveCTransform`).
 
-    The returned containers are actually lists, as we want to preserve the
-    order of the arguments, determined by the order of primitive
-    transforms. However, the lists do not have any duplicate.
+    The function returns three ordered dictionaries, with keys being
+    respectively the variables, parameters and constants of the given transform
+    (`kgprim.values.Variable`, `kgprim.values.Parameter`, and
+    `kgprim.values.Constant`). Occurrences of pi and raw floating point values
+    are never included.
+    The keys are stored in the same order as they appear in the transform (e.g.
+    if the transform is a rotation of r radians followed by a translation of t
+    meters, r will appear before t).
 
-    The returned lists contain instances of vpc.vpc.Variable, vpc.vpc.Parameter,
-    and vpc.vpc.Constant. Instances of vpc.vpc.MyPI and raw floating point
-    numbers are not returned.
+    The values in the dictionaries are sets, containing all the unique
+    expressions having the corresponding key as an argument. Expressions
+    differing only for the sign are considered the same.
+    For example, if the transform is defined as `rotx(2r) roty(3r) rotz(-2r)`,
+    the set corresponding to `r` will contain `2r` and `3r`.
     '''
     varss = OrderedDict()
     pars  = OrderedDict()
@@ -115,7 +133,7 @@ def symbolicArgumentsOf(coordinateTransform):
     for pct in coordinateTransform.primitives :
         if isinstance(pct.amount, numeric_argument.Expression) :
             arg = pct.amount.arg
-            rtexpr = UniqueExpression(pct, coordinateTransform)
+            rtexpr = UniqueExpression(pct)
 
             if isinstance(arg, numeric_argument.Variable) :
                 if arg not in varss : varss[ arg ] = set()

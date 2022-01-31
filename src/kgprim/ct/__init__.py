@@ -5,7 +5,13 @@ This package contains facilities to represent coordinate transforms models, with
 explicit semantics. The subpackages `repr` and `backend` allow to get concrete
 matrix representations.
 
-The module `frommotions` works in combination with the representations of
-rigid motions in `kgprim.motions`, and allows to automatically compute the
-coordinate transforms associated with a relative pose.
+The module `kgprim.ct.frommotions` allows to compute the coordinate transform(s)
+associated with a rigid motion model from the module `kgprim.motions`.
+
+See the file `test/ct/sample.py`:
+
+```python
+.. include:: ../../../test/ct/sample.py
+```
+
 '''

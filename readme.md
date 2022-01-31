@@ -1,7 +1,7 @@
 This is the Kinematics/Geometric primitives Python package.
 
 This project provides some types and functions to represent entities
-relevant for kinematics like rigid bodies, frames, points, rigid motions.
+like rigid bodies, frames, points, rigid motions.
 
 Most of the types are purely symbolic placeholders, and are meant to be used
 for building models, with Python.
@@ -12,16 +12,15 @@ to get concrete matrix representations.
 # Code documentation
 
 More information about the packages and the modules of this project is available
-in the code itself.
+in the docstrings.
 
 You can generate e.g. html documentation using
-[pdoc3](https://pdoc3.github.io/pdoc/) (requires Python 3.5+).
+[pdoc](https://pdoc.dev/).
 For example:
 
 ```shell
-pip install pdoc3  # don't forget the '3'
 cd src/
-pdoc --html --config show_source_code=False -o /tmp/docs kgprim/ motiondsl/
+pdoc --no-show-source -o /tmp/docs kgprim/ motiondsl/
 ```
 
 # Installation
@@ -37,7 +36,6 @@ Before doing the above, you might want to set up a Python3 virtual environment:
 mkdir myvenv && python3 -m venv myvenv
 source myvenv/bin/activate  # may need to pick another script depending on your shell
 pip install wheel           # also required to set up the env
-
 ```
 
 Do **not** use `python setup.py install`, as that will not work correctly (and
@@ -73,7 +71,7 @@ Similarly, the `test/values.py` performs some simple tests on the types defined
 in the `kgprim.values` module.
 
 # License
-Copyright 2020, Marco Frigerio
+Copyright 2020-2022, Marco Frigerio
 
 Distributed under the BSD 3-clause license. See the `LICENSE` file for more
 details.

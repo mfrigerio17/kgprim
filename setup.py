@@ -1,5 +1,5 @@
 import setuptools
-import os, glob, shutil
+import glob, shutil
 
 with open("readme.md", "r") as fh:
     long_description = fh.read()
@@ -29,7 +29,7 @@ setuptools.setup(
     name="kgprim",
     version="0.1.0",
     author="Marco Frigerio",
-    author_email="marco.frigerio@kuleuven.be",
+    author_email="marco.frigerio17@pm.me",
     description="Kinematics/geometric primitives",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -51,7 +51,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.3',
-    
+
     install_requires = [
         'networkx',
         'numpy',

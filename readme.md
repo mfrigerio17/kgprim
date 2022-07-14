@@ -35,13 +35,8 @@ Before doing the above, you might want to set up a Python3 virtual environment:
 ```sh
 mkdir myvenv && python3 -m venv myvenv
 source myvenv/bin/activate  # may need to pick another script depending on your shell
-pip install wheel           # also required to set up the env
 ```
 
-Do **not** use `python setup.py install`, as that will not work correctly (and
-I believe it is deprecated anyway). You can however use
-`python setup.py realclean` to remove installation artifacts from the source
-tree.
 
 ## Dependencies
 

@@ -1,0 +1,27 @@
+[project]
+
+name        = "kgprim"
+version     = "0.1.0"
+description = "Kinematics/geometric primitives"
+authors     = [
+    { name = "Marco Frigerio", email = "marco.frigerio17@pm.me" }
+]
+
+license = { file = "LICENSE" }
+
+requires-python = ">=3.3"
+
+dependencies = [
+    "networkx",
+    "numpy",
+    "sympy",
+    "textX"
+]
+
+urls = { home= "https://github.com/mfrigerio17/kgprim" }
+
+
+[tool.setuptools.package-data]
+# include the grammar of the MotionDSL, which is required by the module
+motiondsl = ["motiondsl.tx"]
+

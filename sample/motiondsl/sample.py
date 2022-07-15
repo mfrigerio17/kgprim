@@ -9,7 +9,7 @@ def main():
     if len(sys.argv) > 1 :
         ifile = sys.argv[1]
     else :
-        ifile = os.path.join( os.path.dirname(__file__), 'sample.motdsl')
+        ifile = os.path.join( os.path.dirname(__file__), 'model.motdsl')
 
     # Load the DSL model from the input file
     motionsModel = motdsl.dsl.modelFromFile(ifile)

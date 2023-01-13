@@ -57,16 +57,36 @@ Python packages:
 
 
 # Testing
+Testing code is based on the `unittest` framework from the standard library.
+After installation (see above), one may run all the tests with something like:
+
+```sh
+python -m unittest discover --start-directory test/ --pattern '*.py'
+```
+
+The test modules can also be executed individually, e.g.:
+
+```sh
+python test/ct/testcore.py
+
+# or
+python -m test.ct.testcore
+
+# or
+python -m unittest test.ct.testcore
+```
+
 The module `test/ct/testcore.py` is a test suite for the `kgprim.ct` package
-which indirectly also covers the `kgprim.motions` module. If you installed the
-packages correctly, run the tests simply by executing the module,
-as in `python3 testcore.py`.
+which indirectly also covers the `kgprim.motions` module.
 
 Similarly, the `test/values.py` performs some simple tests on the types defined
 in the `kgprim.values` module.
 
+The package `test/motiondsl` has tests for the `motiondsl` package, though it
+may also involve `kgprim.ct`.
+
 # License
-Copyright 2020-2022, Marco Frigerio
+Copyright 2020-2023, Marco Frigerio
 
 Distributed under the BSD 3-clause license. See the `LICENSE` file for more
 details.

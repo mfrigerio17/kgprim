@@ -20,7 +20,7 @@ class NumericMixin:
                 try:
                     amount = amount.evalf()
                 except RuntimeError as e:
-                    raise RuntimeError('Could not compute numeric matrix representation: ' + e.msg())
+                    raise RuntimeError('Could not compute the numeric matrix representation of the transform') from e
             mx = mx @ self.matrix[p.kind](p.axis, p.polarity, amount)
         return mx
     # self.matrix comes from the MatrixRepresentationMixin

@@ -8,10 +8,10 @@ allow to get the concrete matrix representation of a transform.
 The module `kgprim.ct.frommotions` allows to compute the coordinate transform(s)
 associated with a rigid motion model from the module `kgprim.motions`.
 
-See the file `test/ct/sample.py`:
+See the file `sample/kgprim/ct/sample.py`:
 
 ```python
-.. include:: ../../../test/ct/sample.py
+.. include:: ../../../sample/kgprim/ct/sample.py
 ```
 
 '''

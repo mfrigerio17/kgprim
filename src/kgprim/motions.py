@@ -1,14 +1,21 @@
 '''
-Rigid motion models: "primitive" motions like pure
-translations/rotations, and sequences of them.
+This module contains types to represent symbolically rigid motions.
+Motions are pure translations/rotations ("primitive" motions), and sequences
+of them.
 
 A sequence of rigid motions is really a specification of a relative pose
 between Cartesian frames: the motions required to move from A to B identify
 the pose of B relative to A. Conversely, the pose of B relative to A could be
 _defined_ with a sequence of rigid motions that bring A to coincide with B.
+Therefore, these docs may use the term 'motion' and 'pose-specification'
+interchangeably.
 
-Therefore, in this and related modules the term 'motion' and
-'pose-specification' may be used as synonyms.
+Rigid motion models (relative poses) can be turned into concrete
+representations such as coordinate transforms. This is in fact a typical use
+case. See the package `kgprim.ct` and the module `kgprim.ct.frommotions`.
+
+The package `motiondsl` offers a simple textual format to conveniently load
+motion objects.
 '''
 
 from enum import Enum
@@ -184,8 +191,15 @@ class PoseSpec:
     '''
 
     def __init__(self, pose, motion):
+        '''
+        Arguments:
+        - pose: the `kgprim.core.Pose` instance you want to describe
+        - motion: an instance of `MotionSequence` or `MotionPath`, which lists
+          the motion-steps defining the pose
+        '''
         self._pose   = pose
         self._motion = motion
+
     @property
     def pose(self): return self._pose
 

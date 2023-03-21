@@ -15,7 +15,7 @@ fB -> fC : rotz( c:rz:0.6 ) roty( pi /2 )
 
 // Demonstrate the use of parameters, and parameter expressions.
 // Note that a parameter (like 'my_tr') does not need to be the complete
-// argument of a motion step, it may appear only as a part of an expression.
+// argument of a motion step, it may appear as a part of an expression.
 fC -> fD : trz(p:my_tr/2)  trx(p:my_tr/2) roty( p:my_rot )
 fD -> fE : rotz(p:my_rot) rotx(2*p:my_rot)
 

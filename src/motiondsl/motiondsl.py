@@ -8,22 +8,26 @@ the MotionDSL format.
 
 For example:
 
-    import os, sys
-    import motiondsl.motiondsl as motdsl
+```python
+import os, sys
+import motiondsl.motiondsl as motdsl
 
-    def main():
-        if len(sys.argv) > 1 :
-            ifile = sys.argv[1]
-        else :
-            ifile = os.path.join( os.path.dirname(__file__), 'sample.motdsl')
+def main():
+    if len(sys.argv) > 1 :
+        ifile = sys.argv[1]
+    else :
+        ifile = os.path.join( os.path.dirname(__file__), 'sample.motdsl')
 
-        # Load the motions-model from the input file
-        motionsModel = motdsl.dsl.modelFromFile(ifile)
+    # Load the motions-model from the input file
+    motionsModel = motdsl.dsl.modelFromFile(ifile)
 
-        print("Motions (poses) model name: ", motionsModel.name)
+    print("Motions (poses) model name: ", motionsModel.name)
 
-        # Convert the motions-model to a pose-specification model
-        posesModel = motdsl.toPosesSpecification(motionsModel)
+    # Convert the motions-model to a pose-specification model
+    posesModel = motdsl.toPosesSpecification(motionsModel)
+```
+
+See also the files in the `sample/motiondsl` folder.
 '''
 
 import sympy as sp

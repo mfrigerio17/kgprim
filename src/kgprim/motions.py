@@ -207,8 +207,8 @@ class PosesSpec:
     '''
 
     def __init__(self, name, poses):
-        self.name = name
-        self.poses = poses
+        self._name = name
+        self._poses = poses
 
     def mergeModel(self, otherModel, name=None):
         if name is None:
@@ -217,6 +217,17 @@ class PosesSpec:
         poses.extend( otherModel.poses ) # only works for lists !
         return PosesSpec(name, poses)
 
+    @property
+    def name(self):
+        '''The name given to this container'''
+        return self._name
+
+    @property
+    def poses(self):
+        '''The list of `PoseSpec` in this container'''
+        return self._poses
+
+    #TODO operator[] and such, to make it act as the list
 
 
 import networkx as nx

@@ -31,7 +31,9 @@ variables. The corresponding `kgprim.motions.MotionStep` object created when
 loading the document will have a `kgprim.values.Variable` instance as the value
 of its `amount` member.
 
-See the file `sample/sample.motdsl` for a slightly larger sample.
+See the file `sample/motiondsl/model.motdsl` for a slightly larger sample. See
+also `sample/motiondsl/sample.py` for an example of how to read the model with
+Python code.
 
 While this package depends on the `kgprim.motions` module, the
 converse is not true.

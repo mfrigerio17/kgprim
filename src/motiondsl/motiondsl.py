@@ -88,6 +88,10 @@ class MotionDSL:
         return self.mm.model_from_file(file)
 
 
+    def modelFromText(self, text):
+        return self.mm.model_from_str(text)
+
+
 dsl = MotionDSL()
 
 __mode_map = {

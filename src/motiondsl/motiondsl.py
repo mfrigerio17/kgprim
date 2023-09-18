@@ -88,6 +88,10 @@ class MotionDSL:
         return self.mm.model_from_file(file)
 
 
+    def modelFromText(self, text):
+        return self.mm.model_from_str(text)
+
+
 dsl = MotionDSL()
 
 __mode_map = {
@@ -129,13 +133,43 @@ __ser_map = {
     },
 }
 
+
+def _isIdentity(expr):
+    return expr.expr == expr.arg.symbol
+
+def expressionToMotionDSLSnippet(expr):
+    if isinstance(expr, float):
+        return expr.__str__()
+    if expr.constant() :
+        if expr.arg.name == "pi":
+            return expr.__str__()
+        if _isIdentity(expr):
+            return "c:{}:{}".format(expr.arg.name, expr.evalf())
+        else:
+            cref = "c:" + expr.arg.name
+            return expr.__str__().replace(expr.arg.name, cref)
+    elif isinstance(expr.arg, Parameter):
+        pref = "p:" + expr.arg.name
+        return expr.__str__().replace(expr.arg.name, pref)
+    else:
+        return expr.__str__()
+
 def poseSpecToMotionDSLSnippet(poseSpec):
     tgtF = poseSpec.pose.target
     refF = poseSpec.pose.reference
-    path = ""
+    steps = []
     for seq in poseSpec.motion.sequences :
         for step in seq.steps :
-            path = path + ' {step}({amount})'.format(step=__ser_map[step.kind][step.axis], amount=step.amount.__str__())
-    ret = '{ref} -> {tgt} : {path}'.format(ref=refF.name, tgt=tgtF.name, path=path)
+            steps.append("{step}({amount})".format(
+                step   = __ser_map[step.kind][step.axis],
+                amount = expressionToMotionDSLSnippet(step.amount))
+            )
+    ret = '{ref} -> {tgt} : {path}'.format(ref=refF.name, tgt=tgtF.name, path=" ".join(steps))
     return ret
 
+
+def snippetToPoseSpec(text):
+    preable = '''Model __tmp__\nConvention = currentFrame\n\n'''
+    model_text = preable + text
+    poses = toPosesSpecification( dsl.mm.model_from_str(model_text) )
+    return poses.poses[0]

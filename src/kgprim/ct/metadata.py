@@ -13,15 +13,16 @@ class TransformMetadata:
     transform is parametric or constant.
     '''
 
-    def __init__(self, coordinateTransform):
+    def __init__(self, coordinateTransform, customName=None):
         self.vars, self.pars, self.consts =\
                                symbolicArgumentsOf(coordinateTransform)
         self.ct = coordinateTransform
         self.parametric = (len(self.pars)>0)
         self.constant   = (len(self.vars)==0 and len(self.pars)==0)
+        self._name      = customName or str(self.ct)
 
     @property
-    def name(self): return str(self.ct)
+    def name(self): return self._name
 
 
 class TransformsModelMetadata:
@@ -29,7 +30,17 @@ class TransformsModelMetadata:
     Metadata for a whole transforms-model (that is, a set of transforms)
     '''
 
-    def __init__(self, ctmodel):
+    def __init__(self, ctmodel, tfNamesMap=None):
+        '''
+        Arguments
+          - `ctmodel`: the coordinate-transforms container, an instance of
+            `models.CTransformsModel`
+          - `tfNamesMap`: an optional dictionary with custom names for each
+            transform in the given model. The dictionary is keyed with tuples
+            with the left and right-frame (in this order) of the transform to
+            be named.
+        '''
+
         variables    = OrderedDict()
         parameters   = OrderedDict()
         constants    = OrderedDict()
@@ -40,8 +51,10 @@ class TransformsModelMetadata:
             else :
                 container[ argument ].update( expressions )
 
+        names = tfNamesMap or {}
         for transf in ctmodel.transforms :
-            tinfo = TransformMetadata(transf)
+            name  = names.get( (transf.leftFrame, transf.rightFrame) ) # 'get' defaults to None
+            tinfo = TransformMetadata(transf, customName=name)
             for var, expressions in tinfo.vars.items() :
                 add( variables, var, expressions )
                 #rotOrTr(tinfo, var)

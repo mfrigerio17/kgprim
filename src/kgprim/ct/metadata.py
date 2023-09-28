@@ -24,6 +24,71 @@ class TransformMetadata:
     @property
     def name(self): return self._name
 
+    @property
+    def is_parametric(self): return self.parametric
+
+    @property
+    def is_constant(self): return self.constant
+
+    @property
+    def is_dependent(self):
+        '''Tell whether this transform depends on any Variable.'''
+        return len(self.vars)>0
+
+    @property
+    def variables(self):
+        '''
+        Return a view of the set of Variables this transform depends on.
+        The set is ordered. See the description of the keys of the dictionaries
+        in `symbolicArgumentsOf()`.
+        '''
+        return self.vars.keys()
+
+    @property
+    def parameters(self):
+        '''
+        Return a view of the set of Parameters this transform depends on.
+        The set is ordered. See the description of the keys of the dictionaries
+        in `symbolicArgumentsOf()`.
+        '''
+        return self.pars.keys()
+
+    @property
+    def constants(self):
+        '''
+        Return a view of the set of Constants that appear in this transform.
+        The set is ordered. See the description of the keys of the dictionaries
+        in `symbolicArgumentsOf()`.
+        '''
+        return self.consts.keys()
+
+    @property
+    def variable_expressions(self):
+        '''
+        The dictionary with the variables and the corresponding expressions
+        appearing in this transform.
+        See `symbolicArgumentsOf()` for the format of the dictionary.
+        '''
+        return self.vars
+
+    @property
+    def parameter_expressions(self):
+        '''
+        The dictionary with the parameters and the corresponding expressions
+        appearing in this transform.
+        See `symbolicArgumentsOf()` for the format of the dictionary.
+        '''
+        return self.pars
+
+    @property
+    def constant_expressions(self):
+        '''
+        The dictionary with the constants and the corresponding expressions
+        appearing in this transform.
+        See `symbolicArgumentsOf()` for the format of the dictionary.
+        '''
+        return self.consts
+
 
 class TransformsModelMetadata:
     '''

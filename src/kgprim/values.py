@@ -69,7 +69,7 @@ class Parameter:
     def __init__(self, name, symbol=None, defValue=None):
         self.name_   = name
         self.symbol_ = symbol or sp.Symbol(name=name)
-        self.defaultValue = defValue
+        self.dvalue_ = defValue
 
     @property
     def name(self):
@@ -85,6 +85,10 @@ class Parameter:
     @property
     def constant(self):
         return False
+
+    @property
+    def defaultValue(self):
+        return self.dvalue_
 
     def __eq__(self, rhs):
         return (isinstance(rhs, Parameter)

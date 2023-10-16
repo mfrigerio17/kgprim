@@ -55,11 +55,14 @@ def _argValue(arg):
 class MotionDSL:
     def __init__(self):
         here = os.path.dirname(os.path.abspath(__file__))
-        self.mm = textx.metamodel_from_file(here+"/motiondsl.tx")
+        self.mm = textx.metamodel_from_file(here+"/motiondsl.tx", auto_init_attributes=False)
+        # disable auto-init so that optional attributes (like the default value
+        # of a parameter) will be 'None' when not specified in the input model
+
         obj_processors = {
             'PILiteral': lambda _ : MyPI.instance(),
             'Variable' : lambda x : Variable(name=x.name),
-            'Parameter': lambda x : Parameter(name=x.name),
+            'Parameter': lambda x : Parameter(name=x.name, defValue=x.defvalue),
             'UserConstant': lambda x : Constant(name=x.name, value=x.value),
             'RefToConstant': lambda x : Constant(name=x.actual.name, value=x.actual.value),
 
@@ -150,6 +153,8 @@ def expressionToMotionDSLSnippet(expr):
             return expr.__str__().replace(expr.arg.name, cref)
     elif isinstance(expr.arg, Parameter):
         pref = "p:" + expr.arg.name
+        if expr.arg.defaultValue is not None:
+            pref = pref + f"[{expr.arg.defaultValue}]"
         return expr.__str__().replace(expr.arg.name, pref)
     else:
         return expr.__str__()

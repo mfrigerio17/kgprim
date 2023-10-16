@@ -70,7 +70,7 @@ Constant : FLOAT | PILiteral | UserConstant | RefToConstant;
 PILiteral : /[P|p][I|i]/ ;
 UserConstant : "c:" name=ID ":" value=FLOAT;
 RefToConstant: "c:" actual=[UserConstant];
-Parameter : !PILiteral "p:"name=ID;
+Parameter : !PILiteral "p:"name=ID ('['defvalue=NUMBER']')?;
 Variable  : !PILiteral !Parameter name=ID;
 
 Comment: /\/\/.*$/;

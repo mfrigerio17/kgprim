@@ -155,25 +155,28 @@ class UniqueExpression:
     of this class that compare equal.
 
     Arguments:
-    - `ctPrimitive` a primitive transform having an expression as argument
+    - `arg` a `kgprim.ct.models.PrimitiveCTransform` whose motion-step has an
+      expression as argument; alternatively, a `kgprim.motions.MotionStep`
+      object right away
     '''
 
-    def __init__(self, ctPrimitive ):
-        if not isinstance(ctPrimitive.amount, numeric_argument.Expression) :
-            raise RuntimeError('Need to pass a transform with an Expression as argument')
+    def __init__(self, arg ):
+        try:
+            original = arg.amount # works for both PrimitiveCTransform and MotionStep
 
-        original = ctPrimitive.amount
-        # Sympy specifics here... might not be very robust...
-        # Essentially we want to isolate the same Expression but without any
-        # '-' in front
-        # We rely on the fact that the sympy epressions coming from an input
-        # geometry model are not more complicated than 'coefficient * symbol'
-        (mult, rest) = original.expr.as_coeff_mul()
-        sympynew = abs(mult) * rest[0] # [0] here, assumption is that there is only one term other than the multiplier
-        expression = numeric_argument.Expression(argument=original.arg, sympyExpr=sympynew)
+            # Sympy specifics here... might not be very robust...
+            # Essentially we want to isolate the same Expression but without any
+            # '-' in front
+            # We rely on the fact that the sympy epressions coming from an input
+            # geometry model are not more complicated than 'coefficient * symbol'
+            (mult, rest) = original.expr.as_coeff_mul()
+            sympynew = abs(mult) * rest[0] # [0] here, assumption is that there is only one term other than the multiplier
+            expression = numeric_argument.Expression(argument=original.arg, sympyExpr=sympynew)
 
-        self.expression = expression
-        self.rotation   = (ctPrimitive.kind == MotionStep.Kind.Rotation)
+            self.expression = expression
+            self.rotation   = (arg.kind == MotionStep.Kind.Rotation)
+        except AttributeError as e:
+            raise ValueError("Incompatible argument type given to UniqueExpression()") from e
 
     @property
     def symbolicExpr(self):

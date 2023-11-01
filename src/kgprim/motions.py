@@ -190,7 +190,7 @@ class PoseSpec:
     the pose of B relative to A.
     '''
 
-    def __init__(self, pose, motion):
+    def __init__(self, pose, motion, name=None):
         '''
         Arguments:
         - pose: the `kgprim.core.Pose` instance you want to describe
@@ -199,6 +199,7 @@ class PoseSpec:
         '''
         self._pose   = pose
         self._motion = motion
+        self._name = name
 
     @property
     def pose(self): return self._pose
@@ -206,12 +207,16 @@ class PoseSpec:
     @property
     def motion(self): return self._motion
 
-
+    @property
+    def name(self): return self._name
 
 def inversePoseSpec(poseSpec):
     pose = Pose(target=poseSpec.pose.reference, reference=poseSpec.pose.target)
     motion = reverse(poseSpec.motion)
-    return PoseSpec(pose, motion)
+    name = None
+    if poseSpec.name is not None:
+        name = f"inverse-of-{poseSpec.name}"
+    return PoseSpec(pose, motion, name)
 
 
 
@@ -288,5 +293,6 @@ class ConnectedFramesInspector:
 
         pose = Pose(target=targetFrame, reference=referenceFrame)
         return PoseSpec(pose=pose, motion=MotionPath(motions))
-
+        # TODO: return the original PoseSpec, if there is one that matches the
+        # given frames, instead of recreating it
 

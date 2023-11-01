@@ -117,7 +117,7 @@ def toPosesSpecification(dslmodel):
         tgt  = primitives.Frame(m.end.name)
         pose = primitives.Pose(target=tgt, reference=ref)
         motSeq = MotionSequence( m.primitiveMotions, mode)
-        poses.append( PoseSpec(pose=pose, motion=motSeq) )
+        poses.append( PoseSpec(pose=pose, motion=motSeq, name=m.userName) )
 
     return PosesSpec(name=dslmodel.name, poses=poses)
 

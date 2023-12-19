@@ -162,16 +162,23 @@ class UniqueExpression:
 
     def __init__(self, arg ):
         try:
-            original = arg.amount # works for both PrimitiveCTransform and MotionStep
+            src_expr = arg.amount # works for both PrimitiveCTransform and MotionStep
 
             # Sympy specifics here... might not be very robust...
             # Essentially we want to isolate the same Expression but without any
             # '-' in front
             # We rely on the fact that the sympy epressions coming from an input
-            # geometry model are not more complicated than 'coefficient * symbol'
-            (mult, rest) = original.expr.as_coeff_mul()
-            sympynew = abs(mult) * rest[0] # [0] here, assumption is that there is only one term other than the multiplier
-            expression = numeric_argument.Expression(argument=original.arg, sympyExpr=sympynew)
+            # geometry model are not more complicated than 'coefficient * symbol'.
+            # Explicitly passing 'symbol' makes it work also when the
+            # coefficient is a float rather than rational (e.g. "0.5*pi" as
+            # opposed to "pi/2").
+
+            (mult, rest) = src_expr.expr.as_coeff_mul( src_expr.arg.symbol )
+            if len(rest) > 1 :
+                raise RuntimeError("Could not separate the coefficient in expression {}".format(src_expr.expr))
+            # we assume there is only one term other than the multiplier
+            sympynew = abs(mult) * rest[0]
+            expression = numeric_argument.Expression(argument=src_expr.arg, sympyExpr=sympynew)
 
             self.expression = expression
             self.rotation   = (arg.kind == MotionStep.Kind.Rotation)

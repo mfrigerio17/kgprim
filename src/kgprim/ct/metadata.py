@@ -217,11 +217,11 @@ def symbolicArgumentsOf(coordinateTransform):
     if the transform is a rotation of r radians followed by a translation of t
     meters, r will appear before t).
 
-    The values in the dictionaries are sets, containing all the unique
-    expressions having the corresponding key as an argument. Expressions
+    The values in the dictionaries are also sorted containers, with all the
+    unique expressions having the corresponding key as an argument. Expressions
     differing only for the sign are considered the same.
     For example, if the transform is defined as `rotx(2r) roty(3r) rotz(-2r)`,
-    the set corresponding to `r` will contain `2r` and `3r`.
+    the container corresponding to `r` will contain `2r` and `3r`.
     '''
     varss = OrderedDict()
     pars  = OrderedDict()
@@ -231,15 +231,19 @@ def symbolicArgumentsOf(coordinateTransform):
             arg = pct.amount.arg
             rtexpr = UniqueExpression(pct)
 
+        # Use ordered dictionaries with no values to emulate sorted sets.
+        # Iteration over a dictionary itself (no keys() nor values() ) defaults
+        # to iteration over the keys, so it would appear to be an ordered
+        # sequence, with no duplicates, as I want.
             if isinstance(arg, numeric_argument.Variable) :
-                if arg not in varss : varss[ arg ] = set()
-                varss.get( arg ).add( rtexpr )
+                if arg not in varss : varss[ arg ] = OrderedDict()
+                varss.get( arg ) [rtexpr] = None
             elif isinstance(arg, numeric_argument.Parameter) :
-                if arg not in pars : pars[ arg ] = set()
-                pars.get( arg ).add( rtexpr )
+                if arg not in pars : pars[ arg ] = OrderedDict()
+                pars.get( arg ) [rtexpr] = None
             elif isinstance(arg, numeric_argument.Constant) :
-                if arg not in consts : consts[ arg ] = set()
-                consts.get( arg ).add( rtexpr )
+                if arg not in consts : consts[ arg ] = OrderedDict()
+                consts.get( arg ) [rtexpr] = None
     return varss, pars, consts
 
 

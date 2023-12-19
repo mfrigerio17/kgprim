@@ -14,6 +14,7 @@ import kgprim.values  as numeric_argument
 from kgprim.motions import MotionSequence, MotionStep
 
 import kgprim.ct.models as ctmodels
+import kgprim.ct.metadata as ctmetadata
 from kgprim.ct.frommotions import toCoordinateTransform
 import kgprim.ct.backend.numeric  as numBackend
 import kgprim.ct.backend.symbolic as symBackend
@@ -332,6 +333,65 @@ class SymbolicBackendTests :
         self.assertTrue( correct )
 
 
+class TransformMetadataTests :
+    '''
+    Check the consistency of the metadata of a transform
+    '''
+
+    def test_freeSymbols(self):
+        '''
+        The symbols used in the creation of a transform shall appear in its metadata
+        '''
+
+        v1 = numeric_argument.Variable(name="v1")
+        p1 = numeric_argument.Parameter(name="p1")
+        steps = [
+            MotionStep(MotionStep.Kind.Rotation, motions.Axis.X,
+                numeric_argument.Expression( v1 ) ),
+            MotionStep(MotionStep.Kind.Translation, motions.Axis.X, 0.1234),
+            MotionStep(MotionStep.Kind.Translation, motions.Axis.Y,
+                numeric_argument.Expression( p1, 3*p1.symbol ) )
+        ]
+        mot1 = MotionSequence(steps)
+        pose1 = motions.PoseSpec(pose=pBA, motion=mot1)
+        A_ct_B = toCoordinateTransform(pose1)
+        ctinfo = ctmetadata.TransformMetadata(A_ct_B)
+
+        self.assertEqual(ctinfo.variables, {v1})
+        self.assertEqual(ctinfo.parameters, {p1})
+
+    def test_symbolExpressions(self):
+        '''
+        The symbolic expressions used in the definition of a transform shall
+        appear in the metadata.
+        '''
+
+        v1 = numeric_argument.Variable(name="v1")
+        p1 = numeric_argument.Parameter(name="p1")
+        p1_expr1 = numeric_argument.Expression( p1, 3*p1.symbol )
+        p1_expr2 = numeric_argument.Expression( p1, p1.symbol/(-2) )
+        c1 = numeric_argument.Constant(name="c1", value = -1.05)
+        c1_expr1 = numeric_argument.Expression( c1, c1.symbol/2 )
+        steps = [
+            MotionStep(MotionStep.Kind.Rotation, motions.Axis.X,
+                numeric_argument.Expression( v1 ) ),
+            MotionStep(MotionStep.Kind.Translation, motions.Axis.X, 0.1234),
+            MotionStep(MotionStep.Kind.Translation, motions.Axis.Y, p1_expr1),
+            MotionStep(MotionStep.Kind.Translation, motions.Axis.Y, p1_expr2),
+            MotionStep(MotionStep.Kind.Rotation, motions.Axis.Z, c1_expr1)
+        ]
+        mot1 = MotionSequence(steps)
+        pose1 = motions.PoseSpec(pose=pBA, motion=mot1)
+        A_ct_B = toCoordinateTransform(pose1)
+        varss, parss, constss = ctmetadata.symbolicArgumentsOf(A_ct_B)
+
+        # Note the minus (to get the plus), because we expect the expressions
+        # in the metadata to be without the minus, even when original expression
+        # does have it
+        self.assertEqual( [e.symbolicExpr for e in parss[p1]], [p1_expr1.expr, -p1_expr2.expr] )
+        self.assertEqual( [e.symbolicExpr for e in constss[c1]], [c1_expr1.expr] )
+
+
 class NumericHomogeneous (NumericMixin , HomReprMixin):   pass
 class SymbolicHomogeneous(SymbolicMixin, HomReprMixin):   pass
 class NumericSpatial (NumericMixin , SpatialReprMixin): pass
@@ -365,6 +425,8 @@ class TestSpatialSymbolic(SpatialVectorTests, unittest.TestCase):
 class TestSymbolicHomogeneous(unittest.TestCase, SymbolicBackendTests):
     def setUp(self):
         self.backend = SymbolicHomogeneous()
+
+class TestTransformMetadata(unittest.TestCase, TransformMetadataTests): pass
 
 
 def getDebugSample(numMixin, reprMixin):

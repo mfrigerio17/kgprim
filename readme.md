@@ -86,7 +86,7 @@ The package `test/motiondsl` has tests for the `motiondsl` package, though it
 may also involve `kgprim.ct`.
 
 # License
-Copyright 2020-2023, Marco Frigerio
+Copyright 2020-2024, Marco Frigerio
 
 Distributed under the BSD 3-clause license. See the `LICENSE` file for more
 details.

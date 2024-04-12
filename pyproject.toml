@@ -1,7 +1,7 @@
 [project]
 
 name        = "kgprim"
-version     = "0.1.0"
+version     = "0.1.1"
 description = "Kinematics/geometric primitives"
 authors     = [
     { name = "Marco Frigerio", email = "marco.frigerio17@pm.me" }

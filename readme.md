@@ -11,12 +11,13 @@ to get concrete matrix representations.
 
 # Code documentation
 
-More information about the packages and the modules of this project is available
-in the docstrings.
+API and package documentation is hosted [here](https://mfrigerio17.github.io/kgprim/).
 
-You can generate e.g. html documentation using
-[pdoc](https://pdoc.dev/).
-For example:
+The HTML docs are generated from the docstrings in the source code,
+using [pdoc](https://pdoc.dev/).
+
+You can generate the docs offline from your working copy, with something
+like:
 
 ```shell
 cd src/

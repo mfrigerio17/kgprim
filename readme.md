@@ -26,12 +26,19 @@ pdoc --no-show-source -o /tmp/docs kgprim/ motiondsl/
 
 # Installation
 ```sh
+pip install kgprim
+```
+
+To install from source (usually more up-to-date than the PyPi package):
+
+```sh
 git clone <repo> kgprim    # replace <repo> with the right URL
 cd kgprim/
 pip install .              # should also fetch and install the dependencies
 ```
 
-Before doing the above, you might want to set up a Python3 virtual environment:
+Before doing the above, you might want to set up a Python3 virtual
+environment:
 
 ```sh
 mkdir myvenv && python3 -m venv myvenv

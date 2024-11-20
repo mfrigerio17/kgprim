@@ -24,3 +24,8 @@ class ParametersTests(unittest.TestCase):
         defvalue = math.trunc(pvalue*factor) / factor
         param = self._very_first_argument(f"fA -> fB : rotx(p:param1[{defvalue:.{ndigits}}])")
         self.assertEqual(defvalue, param.defaultValue)
+
+    def test_param_and_subsequent_reference(self):
+        poseSpec = motiondsl.snippetToPoseSpec("fA->fB : rotx(p:param1[0.1]) roty(p:param1)")
+        steps = poseSpec.motion.sequences[0].steps
+        self.assertEqual( steps[0].amount.argument, steps[1].amount.argument )

@@ -64,6 +64,9 @@ class Parameter:
     value.
 
     Like `Variable`, this class is also a simple wrapper of a Sympy symbol.
+
+    Only the name and the symbol of the parameter influence equality check and
+    hashing, NOT the default value.
     '''
 
     def __init__(self, name, symbol=None, defValue=None):

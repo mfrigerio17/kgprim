@@ -62,7 +62,7 @@ class MotionDSL:
         obj_processors = {
             'PILiteral': lambda _ : MyPI.instance(),
             'Variable' : lambda x : Variable(name=x.name),
-            'Parameter': lambda x : Parameter(name=x.name, defValue=x.defvalue),
+            'Parameter': lambda x : self._instantiateParameter(x),
             'UserConstant': lambda x : Constant(name=x.name, value=x.value),
             'RefToConstant': lambda x : Constant(name=x.actual.name, value=x.actual.value),
 
@@ -79,6 +79,28 @@ class MotionDSL:
             'Rotz': lambda m : MotionStep(MotionStep.Kind.Rotation,    Axis.Z, m.expr)
         }
         self.mm.register_obj_processors( obj_processors )
+        self._resetState()
+
+    def _resetState(self):
+        self.paramInstances = {}
+        self.paramDefValues = {}
+
+    def _instantiateParameter(self, paramFromModel):
+        # all the parameters with the same name (i.e. references to the same
+        #  model parameter) get the default value which was encountered first
+
+        name     = paramFromModel.name
+        plist    = self.paramInstances.setdefault(name, [])
+        defvalue = self.paramDefValues.get(name)
+        if defvalue is None and paramFromModel.defvalue is not None:
+            defvalue = paramFromModel.defvalue
+            self.paramDefValues[name] = defvalue
+            for p in plist:
+                p.dvalue_ = defvalue
+
+        newp = Parameter(name=name, defValue=defvalue)
+        plist.append(newp)
+        return newp
 
 
     def modelFromFile(self, file):
@@ -88,10 +110,12 @@ class MotionDSL:
         Arguments:
           - `file`: path of a MotionDSL document (i.e. a text file)
         '''
+        self._resetState()
         return self.mm.model_from_file(file)
 
 
     def modelFromText(self, text):
+        self._resetState()
         return self.mm.model_from_str(text)
 
 

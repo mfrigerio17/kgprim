@@ -25,4 +25,8 @@ fE -> fF : rotx(q0) rotz( c:rz )
 fF -> fG : roty(q1)
 
 // Variables and parameter
-fG -> fH : rotx(q0) trz( p:my_tr ) roty(q1)
+fG -> fH : rotx(q0) trz( p:my_tr[0.1] ) roty(q1)
+
+// This last example also shows the syntax for the default value of a parameter.
+// Only the first default value encountered in the document will be associated
+// with the parameter, other values will be ignored.

@@ -1,8 +1,6 @@
 import os, sys
 import motiondsl.motiondsl as motdsl
-import kgprim.ct.frommotions
-import kgprim.ct.repr.mxrepr
-import kgprim.ct.metadata
+import kgprim.values as numeric_argument
 
 
 def main():
@@ -20,18 +18,27 @@ def main():
     # kgprim.motions
     posesModel = motdsl.toPosesSpecification(motionsModel)
 
-    # Get the coordinate transforms model from the motions model
-    ctModel = kgprim.ct.frommotions.motionsToCoordinateTransforms(posesModel)
-    for transf in ctModel.transforms :
-        print("\n\nTransform: ", transf)
-        varss, pars, _ = kgprim.ct.metadata.symbolicArgumentsOf(transf)
-        print("\tParameters: ", pars.keys() )
-        print("\tVariables: ", varss.keys() )
+    # Display the individual motion steps of each pose specification
+    for poseSpec in posesModel.poses :
+        print("Pose {}".format(poseSpec.pose))
+        for s in poseSpec.motion.sequences:
+            print("\tsequence:")
+            for st in s.steps:
+                amount = st.amount
+                if isinstance(amount, numeric_argument.Expression):
+                    print("\t\tstep: {}\t- amount = {} (argument = {})".format(st, amount, amount.arg.name ))
+                else:
+                    print("\t\tstep: {}\t- amount = {}".format(st, amount))
 
-        H = kgprim.ct.repr.mxrepr.hCoordinatesSymbolic(transf)
-        print("\tHomogeneous coordinates:\n", repr(H.mx))
-
-    return ctModel
+    # Print infos about the parameters in the model
+    for poseSpec in posesModel.poses :
+        for s in poseSpec.motion.sequences:
+            for st in s.steps:
+                amount = st.amount
+                if isinstance(amount, numeric_argument.Expression):
+                    arg = amount.arg
+                    if isinstance(arg, numeric_argument.Parameter):
+                        print("Parameter '{}', def value = {}".format(arg, arg.defaultValue))
 
 
 if __name__ == '__main__':

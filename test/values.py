@@ -1,5 +1,5 @@
 import unittest
-import sympy, numpy, random
+import math, sympy, random
 import kgprim.values as values
 
 
@@ -22,8 +22,8 @@ class ValuesTests(unittest.TestCase):
         coeff = random.random()
         pi = values.MyPI.instance()
         e = values.Expression(pi, pi.symbol * coeff)
-        err = round( e.evalf() - numpy.pi*coeff, 6 )
-        self.assertTrue( err == 0.0 )
+        err = round( e.evalf() - math.pi*coeff, 6 )
+        self.assertEqual( err, 0.0 )
 
     def test_no_evalf(self):
         '''Variables and Parameters do not evaluate to floats'''

@@ -176,5 +176,5 @@ def poseSpecToMotionDSLSnippet(poseSpec):
 def snippetToPoseSpec(text):
     preable = '''Model __tmp__\nConvention = currentFrame\n\n'''
     model_text = preable + text
-    poses = toPosesSpecification( dsl.mm.model_from_str(model_text) )
+    poses = toPosesSpecification( dsl.modelFromText(model_text) )
     return poses.poses[0]

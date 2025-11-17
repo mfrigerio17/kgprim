@@ -240,7 +240,7 @@ class Expression:
         '''The floating point value of this expression, if it is constant'''
         if not self.constant() :
             raise RuntimeError('Cannot evaluate to float a non constant expression')
-        return self.expression.evalf( subs={self.argument.symbol : self.argument.value})
+        return float( self.expression.evalf( subs={self.argument.symbol : self.argument.value}) )
 
     def constant(self):
         '''Whether this expression has a constant value or not'''

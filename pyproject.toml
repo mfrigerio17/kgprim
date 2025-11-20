@@ -4,10 +4,11 @@ name        = "kgprim"
 version     = "0.1.1"
 description = "Kinematics/geometric primitives"
 authors     = [
-    { name = "Marco Frigerio", email = "marco.frigerio17@pm.me" }
+    { name = "Marco Frigerio", email = "mfgit.6uvfu@passinbox.com" }
 ]
 
-license = { file = "LICENSE" }
+license = "BSD-3-Clause"
+readme = "readme.md"
 
 requires-python = ">=3.3"
 

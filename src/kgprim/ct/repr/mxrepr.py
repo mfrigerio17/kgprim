@@ -115,19 +115,97 @@ symbolic = {
 }
 
 
-
 def constantCoefficients(symbMatrix):
+    '''
+    Returns a tuple with the list of (row,col) tuples corresponding to the
+    constant coefficients of the given matrix, and a second tuple for the
+    variable coefficients.
+    `symbMatrix` is expected to be a Sympy matrix object.
+    '''
+    # The function internally uses Sympy's `is_number`, which essentially checks
+    # whether the coefficient can evaluate to a number. That also works for
+    # symbols inside `kgprim.values.Constant`, and does exactly what we want. If
+    # there is any other symbol in the expression of the coefficient, from the
+    # modeling standpoint that coefficient is "variable".
+    # Note that Sympy's `is_constant` is much more sophisticated (and expensive)
+    # and not required here
+
     constants = []
     variables = []
     for r in range(0, symbMatrix.rows) :
         for c in range(0, symbMatrix.cols) :
-            if symbMatrix[r,c].is_constant() :
+            if symbMatrix[r,c].is_number :
                 constants.append( (r,c) )
                 # if symbMatrix[r,c].is_Float :
                 #    floats.append( (r,c) )
             else :
                 variables.append( (r,c) )
     return tuple(constants), tuple(variables)
+
+
+# We could leverage knowledge about the structure of the matrix, not to check
+# the coefficients that are known to be constant (e.g. 0 or 1).
+# See the code below for a way to do it. However, some basic profiling showed me
+# that it is not worth the additional complexity. This is because Sympy's
+# is_number is pretty fast, especially for coefficients which are structurally
+# sympy.core.numbers...
+
+##def __extend_coeff_lists(matrix, l_constants, l_variables, row_range, col_range):
+##    for r in row_range :
+##        for c in col_range :
+##            if matrix[r,c].is_number :
+##                l_constants.append( (r,c) )
+##            else :
+##                l_variables.append( (r,c) )
+##
+##def _constant_coefficients_rotationm(matrix):
+##    constants = []
+##    variables = []
+##    __extend_coeff_lists(matrix, constants, variables, range(0, 3), range(0, 3))
+##    return tuple(constants), tuple(variables)
+##
+##def _constant_coefficients_homogeneous(matrix):
+##    constants = []
+##    variables = []
+##    __extend_coeff_lists(matrix, constants, variables, range(0, 3), range(0, 4))
+##    constants.extend( [(3,0),(3,1),(3,2),(3,3)] )
+##    return tuple(constants), tuple(variables)
+##
+##def _constant_coefficients_spatial(matrix, spatial_kind, coords_convention):
+##    constants = []
+##    variables = []
+##
+##    # The two 3x3 diagonal blocks are _invariably_ the same rotation matrix.
+##    # So we check those coefficients first.
+##    # I cannot reuse the common code, because here I add two (r,c) coordinates
+##    #  at a time
+##    for r in range(0, 3) :
+##        for c in range(0, 3) :
+##            if matrix[r,c].is_number :
+##                constants.extend( [(r,c), (r+3,c+3)] )
+##            else :
+##                variables.extend( [(r,c), (r+3,c+3)] )
+##
+##    # One of the other two 3x3 blocks is always 0, the other is non-0. Their
+##    # positions depend on the vector type (motion or force) and on the
+##    # coordinates convention (angular on top/bottom)
+##    # --> motion-angular_top is the same as force-angular_bottom <--
+##    if ((spatial_kind == MatrixRepresentation.spatial_motion) and
+##        (coords_convention == spatial.CoordinatesConvention.rotationOnTop)) or (
+##          (spatial_kind == MatrixRepresentation.spatial_force) and
+##        (coords_convention == spatial.CoordinatesConvention.translationOnTop)) :
+##        # these are the zeros
+##        constants.extend([ (0, 3), (0, 4), (0, 5), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5)] )
+##        # non-zero, need to look at them
+##        rows_to_check = range(3, 6)
+##        cols_to_check = range(0, 3)
+##    else :
+##        constants.extend( [(3, 0), (3, 1), (3, 2), (4, 0), (4, 1), (4, 2), (5, 0), (5, 1), (5, 2)] )
+##        rows_to_check = range(0, 3)
+##        cols_to_check = range(3, 6)
+##
+##    __extend_coeff_lists(matrix, constants, variables, rows_to_check, cols_to_check)
+##    return tuple(constants), tuple(variables)
 
 class MatrixReprMetadata:
     '''
@@ -136,8 +214,14 @@ class MatrixReprMetadata:
 
     def __init__(self, coordinateTransformMetadata, matrixRepresentation,
                  reprKind):
-
         ccoeff, vcoeff = constantCoefficients(matrixRepresentation)
+##        if reprKind == MatrixRepresentation.pure_rotation:
+##            ccoeff, vcoeff = _constant_coefficients_rotationm(matrixRepresentation)
+##        elif reprKind == MatrixRepresentation.homogeneous:
+##            ccoeff, vcoeff = _constant_coefficients_homogeneous(matrixRepresentation)
+##        else:
+##            ccoeff, vcoeff = _constant_coefficients_spatial(matrixRepresentation, reprKind, spatialCoordsConvention)
+
         self.variableCoefficients = vcoeff
         self.constantCoefficients = ccoeff
         self.mx = matrixRepresentation
@@ -155,3 +239,27 @@ class MatrixReprMetadata:
     def __hash__(self) :
         return 31*hash(self.ctMetadata.ct) + 93*hash(self.mx)
 
+    @property
+    def constantCoefficientCoordinates(self):
+        '''
+        A sequence of the (row,col) tuples pointing at the constant coefficients
+        of the matrix.
+        '''
+        return self.constantCoefficients
+
+    @property
+    def variableCoefficientCoordinates(self):
+        '''
+        A sequence of the (row,col) tuples pointing at the coefficients of the
+        matrix which depend on variables/parameters.
+        '''
+        return self.variableCoefficients
+
+    @property
+    def transformMetadata(self):
+        '''
+        The metadata of the source coordinate transform this matrix is a
+        representation of.
+        This is the same object given to this instance's constructor.
+        '''
+        return self.ctMetadata

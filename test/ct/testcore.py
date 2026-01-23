@@ -4,9 +4,7 @@ These test cases really address the combined working of `kgprim.motions` and
 independently, without resorting to numerical representations.
 '''
 
-import random, math, unittest, string, logging
-import numpy as np
-import sympy as sp
+import unittest, logging
 
 import kgprim.core    as primitives
 import kgprim.motions as motions
@@ -16,17 +14,11 @@ from kgprim.motions import MotionSequence, MotionStep
 import kgprim.ct.models as ctmodels
 import kgprim.ct.metadata as ctmetadata
 from kgprim.ct.frommotions import toCoordinateTransform
-import kgprim.ct.backend.numeric  as numBackend
-import kgprim.ct.backend.symbolic as symBackend
-import kgprim.ct.repr.mxrepr as ctrepr
-import kgprim.ct.repr.homogeneous as reprHomogeneous
-import kgprim.ct.repr.spatial     as reprSpatial
 
+import test.ct.utils as testutils
 
 logger = logging.getLogger(__name__)
 
-kinds = list(MotionStep.Kind)
-axes  = list(motions.Axis)
 
 # A couple of random frames/poses placeholders to be used in the tests
 
@@ -39,140 +31,6 @@ pCB = primitives.Pose(reference=frB, target=frC)
 
 R_ct_T = ctmodels.TransformPolarity.movedFrameOnTheRight
 T_ct_R = ctmodels.TransformPolarity.movedFrameOnTheLeft
-
-
-class RandomMotionGenerator:
-    def __init__(self, stepSizeGenerator):
-        self.stepSizeGen = stepSizeGenerator
-
-    def randomMotionStep(self, kind=None, axis=None):
-        kind = kind or random.choice(kinds)
-        axis = axis or random.choice(axes)
-        amount = self.stepSizeGen()
-        return MotionStep(kind, axis, amount)
-
-    def randomMotionSteps(self, maxStepsCount=8, stepKind=None):
-        steps_count = math.floor( random.random() * (maxStepsCount+1) )
-        return [self.randomMotionStep(stepKind) for _dummy_ in range(steps_count) ]
-
-    def randomRotations(self, maxStepsCount=8):
-        return self.randomMotionSteps(maxStepsCount, MotionStep.Kind.Rotation)
-
-    def randomMotion(self, maxStepsCount=8):
-        return MotionSequence(self.randomMotionSteps(maxStepsCount), MotionSequence.Mode.currentFrame)
-
-    #TODO add randomPath, with motion sequences with different convention
-
-def symbolsGenerator():
-    # Generates a number 50% of the time, a symbol 50% of the time
-    if random.random() > 0.5 :
-        return random.random()
-    else :
-        return numeric_argument.Expression( numeric_argument.Variable(name=random.choice(string.ascii_letters)) )
-
-
-
-class NumericMixin():
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
-        self.generator = RandomMotionGenerator( random.random )
-
-    def randomMotion(self):
-        return self.generator.randomMotion()
-    def randomRotations(self):
-        return self.generator.randomRotations()
-
-    def equal_matrix(self, M1, M2):
-        return np.array_equal( np.round(M1,5) , np.round(M2,5) )
-
-    def mult_matrix(self, M1, M2):
-        return M1 @ M2
-
-    def identity(self):
-        return np.identity( self.matrixSize() )
-
-    def transpose(self, mx):
-        return np.transpose(mx)
-
-    def backendMixin(self):
-        return numBackend.NumericMixin
-
-    def prettyStr(self, mx):
-        return mx.__str__()
-
-
-class SymbolicMixin():
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
-        self.generator = RandomMotionGenerator( symbolsGenerator )
-
-    def randomMotion(self):
-        return self.generator.randomMotion(maxStepsCount=4) # a bit simpler cases (4 steps) otherwise the tests are too slow
-    def randomRotations(self):
-        return self.generator.randomRotations(maxStepsCount=4)
-
-    def equal_matrix(self, M1, M2):
-        M1 = self._extract_sympy_matrix(M1)
-        M2 = self._extract_sympy_matrix(M2)
-        M1 = sp.nsimplify(sp.trigsimp(M1), tolerance=1e-5, rational=True)
-        M2 = sp.nsimplify(sp.trigsimp(M2), tolerance=1e-5, rational=True)
-        return M1.equals(M2)
-
-    def mult_matrix(self, M1, M2):
-        M1 = self._extract_sympy_matrix(M1)
-        M2 = self._extract_sympy_matrix(M2)
-        return M1 @ M2 # sympy too supports the '@' operator
-
-    def identity(self):
-        return sp.eye( self.matrixSize() )
-
-    def transpose(self, mx):
-        mx = self._extract_sympy_matrix(mx)
-        return sp.transpose(mx)
-
-    def backendMixin(self):
-        return symBackend.SymbolicMixin
-
-    def prettyStr(self, mx):
-        return sp.pretty(mx.mx)
-
-    def _extract_sympy_matrix(self, mx):
-        return mx.mx if isinstance(mx, symBackend.MyMx) else mx
-
-class HomReprMixin():
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
-        class Repr(ctrepr.MatrixRepresentationMixin, self.backendMixin(), reprHomogeneous.HCoordinatesMixin): pass
-
-        self.repr = Repr()
-
-    def asMatrix(self, ct):
-        return self.repr.matrix_repr(ct)
-
-    def matrixSize(self):
-        return 4
-
-class SpatialReprMixin():
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
-
-        class ReprMotion(ctrepr.MatrixRepresentationMixin, self.backendMixin(), reprSpatial.MotionVectorMixin): pass
-        class ReprForce (ctrepr.MatrixRepresentationMixin, self.backendMixin(), reprSpatial.ForceVectorMixin): pass
-        self.repr_as_motion = ReprMotion()
-        self.repr_as_force  = ReprForce()
-
-    def asMatrix(self, ct):
-         # defaults to motion vectors; I could randomize the choice of motion/force
-        return self.repr_as_motion.matrix_repr(ct)
-
-    def asMotionTransform(self, ct):
-        return self.repr_as_motion.matrix_repr(ct)
-
-    def asForceTransform(self, ct):
-        return self.repr_as_force.matrix_repr(ct)
-
-    def matrixSize(self):
-        return 6
 
 
 class GenericTests:
@@ -392,39 +250,36 @@ class TransformMetadataTests :
         self.assertEqual( [e.symbolicExpr for e in constss[c1]], [c1_expr1.expr] )
 
 
-class NumericHomogeneous (NumericMixin , HomReprMixin):   pass
-class SymbolicHomogeneous(SymbolicMixin, HomReprMixin):   pass
-class NumericSpatial (NumericMixin , SpatialReprMixin): pass
-class SymbolicSpatial(SymbolicMixin, SpatialReprMixin): pass
+
 
 
 class GenericTestNumericHomogeneous(unittest.TestCase, GenericTests):
     def setUp(self):
-        self.backend = NumericHomogeneous()
+        self.backend = testutils.NumericHomogeneous()
 
-class GenericTestNumericSpatial    (unittest.TestCase, GenericTests):
+class GenericTestNumericSpatial(unittest.TestCase, GenericTests):
     def setUp(self):
-        self.backend = NumericSpatial()
+        self.backend = testutils.NumericSpatial()
 
 class GenericTestSymbolicHomogeneous(unittest.TestCase, GenericTests):
     def setUp(self):
-        self.backend = SymbolicHomogeneous()
+        self.backend = testutils.SymbolicHomogeneous()
 
 class GenericTestSymbolicSpatial(unittest.TestCase, GenericTests):
     def setUp(self):
-        self.backend = SymbolicSpatial()
+        self.backend = testutils.SymbolicSpatial()
 
-class TestSpatialNumeric(SpatialVectorTests, unittest.TestCase):
+class TestSpatialNumeric(unittest.TestCase, SpatialVectorTests):
     def setUp(self):
-        self.backend = NumericSpatial()
+        self.backend = testutils.NumericSpatial()
 
-class TestSpatialSymbolic(SpatialVectorTests, unittest.TestCase):
+class TestSpatialSymbolic(unittest.TestCase, SpatialVectorTests):
     def setUp(self):
-        self.backend = SymbolicSpatial()
+        self.backend = testutils.SymbolicSpatial()
 
 class TestSymbolicHomogeneous(unittest.TestCase, SymbolicBackendTests):
     def setUp(self):
-        self.backend = SymbolicHomogeneous()
+        self.backend = testutils.SymbolicHomogeneous()
 
 class TestTransformMetadata(unittest.TestCase, TransformMetadataTests): pass
 

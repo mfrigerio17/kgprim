@@ -78,6 +78,7 @@ class SymbolicMixin():
     def __init__(self, **kwds):
         super().__init__(**kwds)
         self.generator = RandomMotionGenerator( symbolsGenerator )
+        self.MZero = sp.zeros(self.matrixSize(),self.matrixSize())
 
     def randomMotion(self):
         return self.generator.randomMotion(maxStepsCount=4) # a bit simpler cases (4 steps) otherwise the tests are too slow
@@ -85,11 +86,9 @@ class SymbolicMixin():
         return self.generator.randomRotations(maxStepsCount=4)
 
     def equal_matrix(self, M1, M2):
-        M1 = self._extract_sympy_matrix(M1)
-        M2 = self._extract_sympy_matrix(M2)
-        M1 = sp.nsimplify(sp.trigsimp(M1), tolerance=1e-5, rational=True)
-        M2 = sp.nsimplify(sp.trigsimp(M2), tolerance=1e-5, rational=True)
-        return M1.equals(M2)
+        diff = self._extract_sympy_matrix(M1) - self._extract_sympy_matrix(M2)
+        diff = sp.nsimplify(sp.trigsimp(diff), tolerance=1e-5, rational=True)
+        return diff.equals(self.MZero)
 
     def mult_matrix(self, M1, M2):
         M1 = self._extract_sympy_matrix(M1)

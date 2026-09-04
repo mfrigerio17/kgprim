@@ -131,7 +131,7 @@ class Attachment():
 
         self._entity = entity
         self._body   = body
-        self.attrs   = {}
+        self.attrs   = {} # "mutable", does not participate in equality check. Should probably be deprecated anyway
 
     @property
     def entity(self): return self._entity
@@ -142,7 +142,14 @@ class Attachment():
     def __getattr__(self, name):
         return getattr(self.entity, name)
 
+    def __eq__(self, rhs):
+        return (isinstance(rhs, Attachment) and
+            self._entity==rhs._entity and self._body==rhs._body)
+    def __hash__(self):
+        return ( 47*hash(self._entity) + 131*hash(self._body) )
+
     def __str__(self):
         return self.entity.name + " attached to " + self.body.name
     def __repr__(self):
         return self.entity.name + "@" + self.body.name
+
